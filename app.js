@@ -7,12 +7,9 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { errors } = require('celebrate');
 const { limiter } = require('./utils/constants');
-const { auth } = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const { validateSignUp, validateSignIn } = require('./middlewares/validate');
-const { createUser, login } = require('./controllers/users');
-const NotFoundError = require('./errors/NotFoundError');
+const router = require('./routes/index');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -33,15 +30,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/moviesdb', {
 app.use(requestLogger);
 
 /* обработка путей */
-app.post('/signup', validateSignUp, createUser);
-app.post('/signin', validateSignIn, login);
-
-app.use('/users', auth, require('./routes/users'));
-app.use('/movies', auth, require('./routes/movies'));
-
-app.use('*', (req, res, next) => {
-  next(new NotFoundError('Страница не найдена'));
-});
+app.use(router);
 
 /* логгер ошибок */
 app.use(errorLogger);
