@@ -11,7 +11,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const router = require('./routes/index');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, MONGO_URL = 'mongodb://127.0.0.1:27017/bitfilmsdb' } = process.env;
 const app = express();
 
 app.use(cors({ origin: ['http://localhost:3001'] }));
@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(limiter);
 app.use(helmet());
 
-mongoose.connect('mongodb://127.0.0.1:27017/moviesdb', {
+mongoose.connect(`${MONGO_URL}`, {
   useNewUrlParser: true,
 });
 

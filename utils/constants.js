@@ -6,7 +6,24 @@ const limiter = rateLimit({
   max: 100,
 });
 
+const deletedFilmMessage = 'Фильм удален';
+
+const errorMessages = {
+  serverErr: 'Ошибка сервера',
+  userNotFound: 'Пользователь по указанному _id не найден',
+  badRequestId: 'Некорректный _id',
+  badRequestUpdateData: 'Переданы некорректные данные при обновлении профиля',
+  badRequestCreateUser: 'Переданы некорректные данные при создании пользователя',
+  conflictErr: 'Пользователь с данным email уже существует',
+  badRequestCreateFilm: 'Переданы некорректные данные при создании фильма',
+  filmNotFound: 'Фильм с указанным _id не найден',
+  forbiddenErr: 'Нельзя удалить фильм другого пользователя',
+  pageNotFound: 'Страница не найдена',
+};
+
 module.exports = {
   urlRegex,
   limiter,
+  deletedFilmMessage,
+  errorMessages,
 };

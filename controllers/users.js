@@ -1,28 +1,38 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { HTTP_STATUS_CREATED } = require('http2').constants;
-const User = require('../models/user');
 
+const User = require('../models/user');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
 const ServerError = require('../errors/ServerError');
+const { errorMessages } = require('../utils/constants');
 
-const { NODE_ENV, JWT_SECRET = 'very-secret-key' } = process.env;
+const {
+  serverErr,
+  userNotFound,
+  badRequestId,
+  badRequestUpdateData,
+  badRequestCreateUser,
+  conflictErr,
+} = errorMessages;
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Пользователь по указанному _id не найден'));
+        return next(new NotFoundError(userNotFound));
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return next(new BadRequestError('Некорректный _id'));
+        return next(new BadRequestError(badRequestId));
       }
-      return next(new ServerError('Ошибка сервера'));
+      return next(new ServerError(serverErr));
     });
 };
 
@@ -44,15 +54,15 @@ module.exports.updateUserData = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError('Пользователь по указанному _id не найден'));
+        return next(new NotFoundError(userNotFound));
       }
       return res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        return next(new BadRequestError(badRequestUpdateData));
       }
-      return next(new ServerError('Ошибка сервера'));
+      return next(new ServerError(serverErr));
     });
 };
 
@@ -64,12 +74,12 @@ module.exports.createUser = (req, res, next) => {
     .then(() => res.status(HTTP_STATUS_CREATED).send({ email, name }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        return next(new BadRequestError(badRequestCreateUser));
       }
       if (err.code === 11000) {
-        return next(new ConflictError('Пользователь с данным email уже существует'));
+        return next(new ConflictError(conflictErr));
       }
-      return next(new ServerError('Ошибка сервера'));
+      return next(new ServerError(serverErr));
     });
 };
 
