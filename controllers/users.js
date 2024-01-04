@@ -59,6 +59,9 @@ module.exports.updateUserData = (req, res, next) => {
       return res.send(user);
     })
     .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ConflictError(conflictErr));
+      }
       if (err.name === 'ValidationError') {
         return next(new BadRequestError(badRequestUpdateData));
       }
